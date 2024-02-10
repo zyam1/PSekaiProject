@@ -15,6 +15,8 @@ public class FirstSceneChanger : MonoBehaviour
     void Update()
     {
         if (Input.anyKey){
+            //아무 버튼이나 누르면 LoadScene으로 이동
+            //나중에 타이틀 이미지로 채울 예정 
             SceneManager.LoadScene("LoadScene");
 
 
