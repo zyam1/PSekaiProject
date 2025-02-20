@@ -78,3 +78,6 @@ crashlytics-build.properties
 #art
 Art/
 # End of https://www.toptal.com/developers/gitignore/api/unity
+
+*.txt
+#텍스트 확장자 무시
