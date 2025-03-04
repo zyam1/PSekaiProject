@@ -4,226 +4,214 @@ using UnityEngine;
 using System.IO;
 using System;
 
-//플레이어
+//  플레이어 데이터 (이름, 돈, 결혼 상대, 인벤토리, 저장 시간 포함)
 [System.Serializable]
-public class playerData
+public class PlayerData
 {
-    public string playerName;//유저 이름
-    public int money;//돈(나중에 범위 벗어나면 99999로뜨게 설정 해야함)
-    public string marry;//결혼 상대 
-    public string usingItem;//사용중인 아이템
-
-
+    public string playerName;       // 유저 이름
+    public int money;               // 돈 (최대 99999 제한 예정)
+    public string marry;            // 결혼 상대
+    public List<string> inventory = new List<string>(); // 아이템 리스트
+    public string lastSavedTime;    // 최근 저장 시간
 }
-//스텟
+
+//  스탯 데이터 (지능, 매력, 체력 등)
 [System.Serializable]
 public class Stats
 {
-    public int intelligence;  // 지능
-    public int charisma;      // 매력
-    public int elegance;      // 기품
-    public int morality;      // 도덕성
-    public int fame;          // 스타성
-    public int stress;        // 스트레스
-    public int strength;      // 체력
-    public int magic;         // 마력
-    public int faith;         // 신앙
-    public int art;           // 예술
+    public int intelligence;
+    public int charisma;
+    public int elegance;
+    public int morality;
+    public int fame;
+    public int stress;
+    public int strength;
+    public int magic;
+    public int faith;
+    public int art;
 }
 
-//엔딩
+//  엔딩 데이터 (도달한 엔딩 리스트)
 [System.Serializable]
-public class endingData
+public class EndingData
 {
-    public bool start;//스타 ()
-    public bool king;//왕 
-    public bool tyrant;//폭군(띠띠님)
-    public bool darklord;//마왕
-    public bool knight;//기사
-    public bool pope;//교황(유자님)
-    public bool soldier;//군인 
-    public bool pianist;//피아니스트
-    public bool cook;//요리사
-    public bool devil;//악마(쿠피님)
-    public bool clown;//광대
+    public List<string> completedEndings = new List<string>(); // 클리어한 엔딩 목록
 }
-//날짜
+
+//  날짜 데이터 (게임 날짜, 날씨 등)
 [System.Serializable]
-public class dayData
+public class DayData
 {
     public int year;
     public int month;
+    public int week;
     public int day;
     public string weather;
 }
-//----------------------------싱글톤 (전역 사용 함수 제작)----------------------------------------------------------
+
+//  전체 저장 데이터 (플레이어, 스탯, 엔딩, 날짜 포함)
+[System.Serializable]
+public class SaveData
+{
+    public PlayerData player;
+    public Stats stats;
+    public EndingData endings;
+    public DayData date;
+}
+
+//  싱글톤 데이터 매니저 (데이터 저장 & 로드)
 public class DataManager : MonoBehaviour
 {
-    //인스턴스 (=싱글톤:전역 참조 가능) 
-    /*
-    DataManager.instance.DoSomething();
-    외부에서 이런식으로 사용, DoSomething()은 Datamanager 의 메서드 
-    */
+    public static DataManager instance; // 싱글톤 인스턴스
 
-    //외부접근 가능한 객체 생성
-    public playerData nowPlayer = new playerData();
-    public endingData nowEnding = new endingData();
-    public dayData currentDate = new dayData();
+    public PlayerData nowPlayer = new PlayerData();
     public Stats nowStats = new Stats();
-    public static DataManager instance;//데이터 매니저 관련 인스턴스 생성(단일 인스턴스이기때문에 싱글톤이다.)
+    public EndingData nowEnding = new EndingData();
+    public DayData currentDate = new DayData();
 
-    string path;
-    string filename = "save.json";
+    private string path;
+    private string filePrefix = "save"; // 세이브 파일 이름 (예: save1.json, save2.json)
+
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(this.gameObject);
         }
-        else if (instance != this)
+        else
         {
-            Destroy(instance.gameObject);
+            Destroy(gameObject);
         }
-        DontDestroyOnLoad(this.gameObject);
+
         path = Application.persistentDataPath + "/";
-        Debug.Log(path);
-    }
-    void Start()
-    {
-
-    }
-    //-----------------------------데이터 세이브-------------------------------------------------
-    //슬롯 1에 저장하는 함수
-    public void SaveData1()
-    {
-
-        // nowPlayer.playerName="datainstance";//여기에 인풋값을 넣어준다->매니저를 통한 데이터 저장
-        nowPlayer.playerName = "띠띠님 왕 바보";
-        string nowPlayerData1 = JsonUtility.ToJson(nowPlayer);
-        File.WriteAllText(path + filename, nowPlayerData1);
-
-    }
-    //슬롯2에 저장하는 함수 
-    public void SaveData2()
-    {
-
-        // nowPlayer.playerName="datainstance";//여기에 인풋값을 넣어준다->매니저를 통한 데이터 저장
-        nowPlayer.playerName = "띠띠님 왕 바보";
-        string nowPlayerData2 = JsonUtility.ToJson(nowPlayer);
-        File.WriteAllText(path + filename, nowPlayerData2);
-
-    }
-    //슬롯3에 저장하는 함수 
-    public void SaveData3()
-    {
-
-        // nowPlayer.playerName="datainstance";//여기에 인풋값을 넣어준다->매니저를 통한 데이터 저장
-        nowPlayer.playerName = "띠띠님 왕 바보";
-        string nowPlayerData3 = JsonUtility.ToJson(nowPlayer);
-        //데이터라는 변수에 nowPlayer객체를 넣어서 json파일로 저장해서 파일에 저장
-        File.WriteAllText(path + filename, nowPlayerData3);
-
+        Debug.Log("세이브 경로: " + path);
     }
 
-    //!위는 예전에 썼던 코드 아래는 단순화 시킨코드
-
+    //  세이브 함수 (슬롯 지정 가능)
     public void SaveData(int slot)
     {
-        string nowPlayerData = JsonUtility.ToJson(nowPlayer);
-        File.WriteAllText(path + "save" + slot + ".json", nowPlayerData);
+        SaveData data = new SaveData
+        {
+            player = nowPlayer,
+            stats = nowStats,
+            endings = nowEnding,
+            date = currentDate
+        };
+
+        //  저장한 날짜/시간 기록
+        nowPlayer.lastSavedTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(path + filePrefix + slot + ".json", json);
+
+        Debug.Log($"슬롯 {slot} 저장 완료! 저장 시간: {nowPlayer.lastSavedTime}");
     }
 
-    //엔딩 판별관련 함수
+    //  데이터 불러오기 (슬롯 지정 가능)
+    public void LoadData(int slot)
+    {
+        string filePath = path + filePrefix + slot + ".json";
+
+        if (File.Exists(filePath))
+        {
+            string data = File.ReadAllText(filePath);
+            SaveData loadedData = JsonUtility.FromJson<SaveData>(data);
+
+            nowPlayer = loadedData.player;
+            nowStats = loadedData.stats;
+            nowEnding = loadedData.endings;
+            currentDate = loadedData.date;
+
+            Debug.Log($"슬롯 {slot} 불러오기 완료! 마지막 저장 시간: {nowPlayer.lastSavedTime}");
+        }
+        else
+        {
+            Debug.LogWarning($"세이브 슬롯 {slot}이 존재하지 않습니다!");
+        }
+    }
+
+    //  엔딩 체크 함수 (최고 엔딩 우선)
     public int CheckEnding()
     {
-        // 플레이어 능력치 가져오기
-        int intelligence = nowStats.intelligence;
-        int charisma = nowStats.charisma;
-        int elegance = nowStats.elegance;
-        int morality = nowStats.morality;
-        int fame = nowStats.fame;
-        int stress = nowStats.stress;
-        int strength = nowStats.strength;
-        int magic = nowStats.magic;
-        int faith = nowStats.faith;
-        int art = nowStats.art;
-
-        //
-        if (intelligence >= 85 && charisma >= 85 && elegance >= 85 &&
-            morality >= 85 && fame >= 85 && stress <= 20)
+        if (nowStats.intelligence >= 85 && nowStats.charisma >= 85 &&
+            nowStats.elegance >= 85 && nowStats.morality >= 85 &&
+            nowStats.fame >= 85 && nowStats.stress <= 20)
         {
-            return 10; // 스타 엔딩
+            nowEnding.completedEndings.Add("스타 엔딩");
+            return 10;
         }
-        else if (magic >= 85 && faith <= 20 && morality <= 20)
+        else if (nowStats.magic >= 85 && nowStats.faith <= 20 && nowStats.morality <= 20)
         {
-            return 9; // 마왕 엔딩
+            nowEnding.completedEndings.Add("마왕 엔딩");
+            return 9;
         }
-        else if (strength >= 80 && morality <= 40 && intelligence >= 70 && magic >= 80)
+        else if (nowStats.strength >= 80 && nowStats.morality <= 40 &&
+                 nowStats.intelligence >= 70 && nowStats.magic >= 80)
         {
-            return 8; // 폭군 엔딩
+            nowEnding.completedEndings.Add("폭군 엔딩");
+            return 8;
         }
-        else if (elegance >= 80 && intelligence >= 75 && morality >= 75 && charisma >= 75)
+        else if (nowStats.elegance >= 80 && nowStats.intelligence >= 75 &&
+                 nowStats.morality >= 75 && nowStats.charisma >= 75)
         {
-            return 7; // 왕 엔딩
+            nowEnding.completedEndings.Add("왕 엔딩");
+            return 7;
         }
-        else if (strength >= 75 && elegance >= 75 && morality >= 75 && charisma >= 75)
+        else if (nowStats.strength >= 75 && nowStats.elegance >= 75 &&
+                 nowStats.morality >= 75 && nowStats.charisma >= 75)
         {
-            return 6; // 기사 엔딩
-        }
-        else if (faith >= 85 && morality >= 75 && elegance >= 75)
-        {
-            return 5; // 교황 엔딩
-        }
-        else if (strength >= 80 && morality >= 75 && intelligence >= 50)
-        {
-            return 4; // 군인 엔딩
-        }
-        else if (art >= 85 && elegance >= 75 && fame >= 75)
-        {
-            return 3; // 피아니스트 엔딩
-        }
-        else if (art >= 50 && morality >= 50 && elegance >= 50)
-        {
-            return 2; // 요리사 엔딩
-        }
-        else if (charisma >= 85 && morality <= 40 && art >= 50)
-        {
-            return 1; // 광대 엔딩
+            nowEnding.completedEndings.Add("기사 엔딩");
+            return 6;
         }
 
         return 0; // 기본 엔딩
     }
 
-    //---------------------------데이터 로드---------------------------------------------------------
-    //슬롯1 데이터 여는 함수
-    public void LoadData1()
+    //  인벤토리 관리 (아이템 추가)
+    public void AddItem(string item)
     {
-        string data = File.ReadAllText(path + filename);
-        nowPlayer = JsonUtility.FromJson<playerData>(data);
-        //
-    }
-    //슬롯2 데이터 여는 함수
-    public void LoadData2()
-    {
-        string data = File.ReadAllText(path + filename);
-        nowPlayer = JsonUtility.FromJson<playerData>(data);
-    }
-    //슬롯3 데이터 여는 함수
-    public void LoadData3()
-    {
-        string data = File.ReadAllText(path + filename);
-        nowPlayer = JsonUtility.FromJson<playerData>(data);
+        nowPlayer.inventory.Add(item);
+        Debug.Log($"아이템 추가: {item}");
     }
 
-    //-------------------------------------데이터 사용 ----------------------------------------------
-    // Update is called once per frame
+    //  인벤토리 관리 (아이템 삭제)
+    public void RemoveItem(string item)
+    {
+        if (nowPlayer.inventory.Contains(item))
+        {
+            nowPlayer.inventory.Remove(item);
+            Debug.Log($"아이템 삭제: {item}");
+        }
+        else
+        {
+            Debug.LogWarning($"아이템 {item}이 인벤토리에 없습니다.");
+        }
+    }
+
+    //  현재 인벤토리 출력
+    public void ShowInventory()
+    {
+        Debug.Log("현재 인벤토리: " + string.Join(", ", nowPlayer.inventory));
+    }
+
+    //  버튼을 통해 저장 (슬롯 1, 2, 3 선택 가능)
+    public void SaveGame(int slot)
+    {
+        SaveData(slot);
+        Debug.Log($"[버튼 클릭] 슬롯 {slot}에 저장 완료!");
+    }
+
+    //  버튼을 통해 불러오기 (슬롯 1, 2, 3 선택 가능)
+    public void LoadGame(int slot)
+    {
+        LoadData(slot);
+        Debug.Log($"[버튼 클릭] 슬롯 {slot}에서 불러오기 완료!");
+    }
+
+    //  세이브 & 로드 테스트 (키 입력 시 저장 & 불러오기 실행)
     void Update()
     {
-        if (Input.anyKey)
-        {
-            SaveData1();//이런식으로 사용하면 슬롯1에 데이터 저장
-            LoadData2();//이런식으로 사용하면 슬롯2에 데이터 저장
-            // 함수를 나눠야 하는건지 한 함수에서 변수로 슬롯이름을 받아서 저장할 건지 효율적인 방법 생각 해보기
-        }
+
     }
 }
