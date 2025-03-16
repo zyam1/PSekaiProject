@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Yarn.Unity;
+
+public class ConversationEvent : MonoBehaviour
+{
+    public GameObject YarnUI;
+    public DialogueRunner dialogueRunner;
+    public GameObject RightUnderUI;
+    public GameObject LeftUI;
+    // Start is called before the first frame update
+    void Start()
+    {
+        YarnUI.SetActive(false);
+    }
+    // 초기 대화 설정 
+    private List<string> randomDialogNodes = new List<string>
+    {
+        "OneConversationDialog1",
+        "OneConversationDialog2",
+        "OneConversationDialog3",
+        "OneConversationDialog4"
+    };
+    public void OnLeftUIClick()
+    {
+        Debug.Log("LeftUI 클릭 → 대화 실행");
+
+        if (dialogueRunner.IsDialogueRunning)
+        {
+            Debug.Log("이미 대화가 진행 중입니다.");
+            return; // 중복 실행 방지
+        }
+
+        YarnUI.SetActive(true);
+
+        // 랜덤 대사 선택
+        string selectedDialog = randomDialogNodes[UnityEngine.Random.Range(0, randomDialogNodes.Count)];
+
+        // 실행 
+        RightUnderUI.SetActive(false);
+        dialogueRunner.StartDialogue(selectedDialog);
+    }
+    public void OnDialogueComplete()
+    {
+        Debug.Log("대화 종료 → YarnUI 비활성화");
+        YarnUI.SetActive(false);
+        RightUnderUI.SetActive(true);
+
+        // 대화 강제 종료 (혹시 남아있을 경우)
+        if (dialogueRunner.IsDialogueRunning)
+        {
+            dialogueRunner.Stop();
+        }
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        if (YarnUI.activeSelf) // YarnUI가 활성화 상태일 경우
+        {
+            if (Input.anyKeyDown) // 아무 키 입력 감지
+            {
+                OnDialogueComplete(); // 대화 종료
+            }
+        }
+    }
+}

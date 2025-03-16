@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+//
 public class SlotDataGet : MonoBehaviour
 {
     public GameObject slot1;
