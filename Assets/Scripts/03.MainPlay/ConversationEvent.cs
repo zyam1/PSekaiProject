@@ -40,6 +40,17 @@ public class ConversationEvent : MonoBehaviour
         // 실행 
         RightUnderUI.SetActive(false);
         dialogueRunner.StartDialogue(selectedDialog);
+        StartCoroutine(AutoEndDialogue());
+    }
+
+    IEnumerator AutoEndDialogue()
+    {
+        yield return new WaitForSeconds(2f); // 3초 대기
+        if (dialogueRunner.IsDialogueRunning) // 대화가 진행 중일 경우에만 종료
+        {
+            OnDialogueComplete();
+            Debug.Log("3초 후 대화 강제 종료");
+        }
     }
     public void OnDialogueComplete()
     {
@@ -62,6 +73,10 @@ public class ConversationEvent : MonoBehaviour
             {
                 OnDialogueComplete(); // 대화 종료
             }
+
+
+
+
         }
     }
 }

@@ -11,12 +11,17 @@ public class SchedulePanel : MonoBehaviour
     public GameObject scheduleLiCon;
     public GameObject RightUI;
     public GameObject YarnUI;
+
     public List<int> schedule = new List<int>();
 
     public DialogueRunner dialogueRunner;  // Yarn Spinner 대화연결
+    public AnimationStatEvent animationStatEvent;
+
+
     public void AddToSchedule(int number)
     {
-        //독서1,알바2,공부3,휴식4
+        //1.금기서적 2.푸드코드 알바 3.발레 4.피아노연주알바 5.마법연구 6.검술대련 7.책읽기 8.공연 9.기도 
+        //10.산책(봄) 11.산책(여름) 12.산책(가을) 
         if (schedule.Count < 4) // 최대 4개까지만 추가
         {
             schedule.Add(number);
@@ -88,17 +93,21 @@ public class SchedulePanel : MonoBehaviour
     public void StartSchedule()
     {
         Debug.Log($"스케줄 시작 현재 스케줄: {string.Join(", ", schedule)}");
+
         panel.SetActive(false);
         scheduleLiCon.SetActive(true);
         ConfirmElements.SetActive(false);
-        schedule.Clear();
-        //초기화 시킨뒤 
+
         Animepanel.SetActive(true);
-        //애니메이션 패널이 열릴경우 우측ui false
         RightUI.SetActive(false);
         YarnUI.SetActive(false);
 
 
+
+        animationStatEvent.PlayScheduleAnimation(schedule);
+
+
     }
+
 
 }
