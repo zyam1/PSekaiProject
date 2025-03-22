@@ -2,16 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Yarn.Unity;
+
 
 public class AnimationStatEvent : MonoBehaviour
 {
     public GameObject[] animeImages;  // 10개의 UI Image (Animator 없이 처리)
     public GameObject AnimePanel;     // AnimePanel 자체
-    public float animationDuration = 3f; // 각 애니메이션 재생 시간
+    public float animationDuration = 2.5f; // 각 애니메이션 재생 시간
     public GameObject RightUI;
+    public GameObject resetButton;
+    public GameObject skipButton;
 
 
-
+    public DialogueRunner dialogueRunner;
+    void Start()
+    {
+        skipButton.SetActive(false);
+    }
     public void PlayScheduleAnimation(List<int> schedule)
     {
         if (!AnimePanel.activeSelf)
@@ -22,7 +30,31 @@ public class AnimationStatEvent : MonoBehaviour
         StartCoroutine(PlayAnimationSequence(schedule));
 
     }
-
+    public void ClickSkipButton()
+    {
+        animationDuration = 2.5f;
+        SetAnimationSpeed(1f);
+        resetButton.SetActive(true);
+        skipButton.SetActive(false);
+    }
+    public void ClickResetButton()
+    {
+        animationDuration = 1f;
+        SetAnimationSpeed(2f / animationDuration);
+        resetButton.SetActive(false);
+        skipButton.SetActive(true);
+    }
+    void SetAnimationSpeed(float speedMultiplier)
+    {
+        foreach (var image in animeImages)
+        {
+            Animator animator = image.GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.speed = speedMultiplier;
+            }
+        }
+    }
     IEnumerator PlayAnimationSequence(List<int> schedule)
     {
         AnimePanel.SetActive(true);
@@ -34,30 +66,39 @@ public class AnimationStatEvent : MonoBehaviour
         }
 
         // 스케줄에 맞는 애니메이션 활성화
-        foreach (int scheduleNumber in schedule)
+        for (int i = 0; i < schedule.Count; i++)
         {
+            int scheduleNumber = schedule[i];
+
             if (scheduleNumber >= 1 && scheduleNumber <= animeImages.Length)
             {
                 GameObject targetImage = animeImages[scheduleNumber - 1];
-                targetImage.SetActive(true);
+                int currentDay = (i % 7) + 1;
+                dialogueRunner.VariableStorage.SetValue("$day", currentDay);
+                targetImage.SetActive(true); if (dialogueRunner.IsDialogueRunning)
+                {
+                    dialogueRunner.Stop();
+                }
+                dialogueRunner.StartDialogue($"AnimeDialog{scheduleNumber}");
 
-                // Animator 실행 (애니메이션 재생)
                 Animator animator = targetImage.GetComponent<Animator>();
                 if (animator != null)
                 {
                     animator.Play(animator.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, 0);
                 }
 
-                yield return new WaitForSeconds(animationDuration); // 2초 후 다음 애니메이션 실행
+                yield return new WaitForSeconds(animationDuration);
 
-                targetImage.SetActive(false); // 다음 애니메이션을 위해 비활성화
+                targetImage.SetActive(false);
             }
         }
 
         AnimePanel.SetActive(false);  // 애니메이션 종료 후 패널 비활성화
         RightUI.SetActive(true);
-        schedule.Clear();
 
+        schedule.Clear();  // 스케줄 초기화
+        Debug.Log("스케줄 초기화 완료");
     }
+
 
 }
