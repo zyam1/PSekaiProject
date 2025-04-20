@@ -29,7 +29,8 @@ public class SchedulePanel : MonoBehaviour
 
         // 성공 확률 정의
         //1.금기서적 2.푸드코드 알바 3.발레 4.피아노연주알바 5.마법연구 6.검술대련 7.책읽기 8.공연 9.기도 
-        //10.산책(봄) 11.산책(여름) 12.산책(가을) 13.
+        //10.산책(봄) 11.산책(여름) 12.산책(가을) 21.봉사활동
+        //!(스케쥴,성공확률)
         Dictionary<int, float> successRates = new Dictionary<int, float>
     {
         { 1, 1f }, { 2, 1f }, { 3, 0.6f }, { 4, 0.5f },

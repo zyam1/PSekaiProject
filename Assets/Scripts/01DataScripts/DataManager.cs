@@ -17,16 +17,16 @@ public class PlayerData
 [System.Serializable]
 public class Stats
 {
-    public int intelligence;
-    public int charisma;
-    public int elegance;
-    public int morality;
-    public int fame;
-    public int stress;
-    public int strength;
-    public int magic;
-    public int faith;
-    public int art;
+    public int intelligence;//지능
+    public int charisma;//매력
+    public int elegance;//기품
+    public int morality;//도덕성
+    public int fame;//명성(스타성)
+    public int stress;//스트레스
+    public int strength;//힘
+    public int magic;//마력
+    public int faith;//신앙
+    public int art;//예술
 }
 
 [System.Serializable]
