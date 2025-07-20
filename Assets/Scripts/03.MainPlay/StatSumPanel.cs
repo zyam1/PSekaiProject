@@ -67,6 +67,7 @@ public class StatSumPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //여기에 버튼 할당 해야함 
         if (Input.anyKeyDown)
         {
             statSumPanel.SetActive(false);
