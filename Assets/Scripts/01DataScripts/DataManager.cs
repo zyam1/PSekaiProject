@@ -7,7 +7,7 @@ using System;
 [System.Serializable]
 public class PlayerData
 {
-    public string playerName; // 유저 이름
+    public string playerName; // 유저 이름 테스트 
     public int money; // 돈 (최대 99999 제한 예정)
     public string marry; // 결혼 상대
     public List<string> inventory = new List<string>(); // 아이템 리스트
