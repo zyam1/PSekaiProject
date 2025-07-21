@@ -12,6 +12,11 @@ public class PlayerData
     public string marry; // 결혼 상대
     public List<string> inventory = new List<string>(); // 아이템 리스트
     public string lastSavedTime; // 최근 저장 시간
+    public PlayerWordsData wordData = new PlayerWordsData(); // 단어 관련 데이터
+    
+    // 대화 관련 데이터
+    public int totalConversationCount = 0; // 총 대화 횟수
+    public Dictionary<string, int> characterConversationCount = new Dictionary<string, int>(); // 캐릭터별 대화 횟수
 }
 
 [System.Serializable]
@@ -62,10 +67,15 @@ public class DataManager : MonoBehaviour
     public Stats nowStats = new Stats();
     public DayData currentDate = new DayData();
     public EndingsData endingsData = new EndingsData(); // 완료한 엔딩 목록
+    public GlobalWordsData globalWords = new GlobalWordsData(); // 전역 단어 데이터
+
+    [Header("단어 시스템")]
+    public WordManager wordManager; // 단어 매니저 참조
 
     private string path;
     private string saveFilePrefix = "save"; // 개별 슬롯 저장 파일명
     private string endingsFile = "endings.json"; // 완료한 엔딩 저장 파일
+    private string wordsFile = "words.json"; // 전역 단어 저장 파일
 
     private void Awake()
     {
@@ -74,6 +84,7 @@ public class DataManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(this.gameObject);
             LoadCompletedEndings(); // 게임 시작 시 완료된 엔딩 불러오기
+            LoadGlobalWords(); // 전역 단어 데이터 불러오기
         }
         else
         {
@@ -82,6 +93,18 @@ public class DataManager : MonoBehaviour
 
         path = Application.persistentDataPath + "/";
         Debug.Log("세이브 경로: " + path);
+        
+        // WordManager 컬포넌트 자동 참조
+        if (wordManager == null)
+        {
+            wordManager = GetComponent<WordManager>();
+            if (wordManager == null)
+            {
+                wordManager = gameObject.AddComponent<WordManager>();
+            }
+        }
+        
+        // GameEventManager는 이제 자동으로 별도 GameObject에 생성됨
     }
 
     // ! 슬롯별 저장 (saveX.json)
@@ -236,5 +259,220 @@ public class DataManager : MonoBehaviour
     {
         LoadData(slot);
         Debug.Log($"[버튼 클릭] 슬롯 {slot}에서 불러오기 완료!");
+    }
+
+    // ===== 단어 시스템 관련 메소드들 =====
+    
+    // ! 전역 단어 데이터를 저장 (words.json)
+    public void SaveGlobalWords()
+    {
+        string json = JsonUtility.ToJson(globalWords, true);
+        File.WriteAllText(path + wordsFile, json);
+        Debug.Log("전역 단어 데이터 저장 완료!");
+    }
+
+    // ! 전역 단어 데이터를 불러오기 (words.json)
+    public void LoadGlobalWords()
+    {
+        string filePath = path + wordsFile;
+        if (File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
+            globalWords = JsonUtility.FromJson<GlobalWordsData>(json);
+            Debug.Log("전역 단어 데이터 불러오기 완료!");
+        }
+        else
+        {
+            globalWords = new GlobalWordsData(); // 파일이 없으면 새로 생성
+            Debug.Log("전역 단어 파일 없음. 새로 생성.");
+        }
+    }
+
+    // ! 단어 획득 (WordManager를 통해 호출)
+    public bool UnlockWord(string wordId, string reason = "")
+    {
+        if (wordManager != null)
+        {
+            bool success = wordManager.UnlockWord(wordId, reason);
+            if (success)
+            {
+                SaveGlobalWords(); // 단어 획득시 즉시 저장
+            }
+            return success;
+        }
+        Debug.LogWarning("WordManager가 설정되지 않았습니다!");
+        return false;
+    }
+
+    // ! 단어 사용 (WordManager를 통해 호출)
+    public int UseWord(string wordId, string characterId)
+    {
+        if (wordManager != null)
+        {
+            int affectionGain = wordManager.UseWord(wordId, characterId);
+            // 사용 기록은 세이브 데이터에 포함되므로 별도 저장 불필요
+            return affectionGain;
+        }
+        Debug.LogWarning("WordManager가 설정되지 않았습니다!");
+        return 0;
+    }
+
+    // ! 캐릭터별 호감도 조회
+    public int GetCharacterAffection(string characterId)
+    {
+        if (wordManager != null)
+        {
+            return wordManager.GetCharacterAffection(characterId);
+        }
+        return 0;
+    }
+
+    // ! 보유 단어 목록 조회
+    public List<Word> GetOwnedWords()
+    {
+        if (wordManager != null)
+        {
+            return wordManager.GetOwnedWords();
+        }
+        return new List<Word>();
+    }
+
+    // ! 단어 통계 출력
+    public void ShowWordStatistics()
+    {
+        if (wordManager != null)
+        {
+            wordManager.ShowWordStatistics();
+        }
+        else
+        {
+            Debug.LogWarning("WordManager가 설정되지 않았습니다!");
+        }
+    }
+
+    // ! 이벤트 기반 단어 해금 체크
+    public void CheckWordUnlock(string eventType, params object[] parameters)
+    {
+        if (wordManager != null)
+        {
+            wordManager.CheckWordUnlockConditions(eventType, parameters);
+        }
+    }
+
+    // ===== 대화 시스템 관련 메소드들 =====
+    
+    // ! 대화 횟수 증가
+    public void IncrementConversationCount(string characterId = "general")
+    {
+        // 총 대화 횟수 증가
+        nowPlayer.totalConversationCount++;
+        
+        // 캐릭터별 대화 횟수 증가
+        if (!nowPlayer.characterConversationCount.ContainsKey(characterId))
+        {
+            nowPlayer.characterConversationCount[characterId] = 0;
+        }
+        nowPlayer.characterConversationCount[characterId]++;
+        
+        Debug.Log($"대화 횟수 증가: 총 {nowPlayer.totalConversationCount}회, {characterId}: {nowPlayer.characterConversationCount[characterId]}회");
+        
+        // 대화 수 기반 단어 해금 체크
+        CheckConversationBasedWordUnlock();
+    }
+    
+    // ! 대화 수 기반 단어 해금 체크
+    private void CheckConversationBasedWordUnlock()
+    {
+        // 3번째 대화에서 "인사" 단어 해금
+        if (nowPlayer.totalConversationCount == 3)
+        {
+            CheckWordUnlock("third_conversation");
+        }
+        
+        // 추가 대화 기반 단어 해금 조건들
+        if (nowPlayer.totalConversationCount >= 10)
+        {
+            CheckWordUnlock("conversation_veteran");
+        }
+    }
+    
+    // ! 총 대화 횟수 조회
+    public int GetTotalConversationCount()
+    {
+        return nowPlayer.totalConversationCount;
+    }
+    
+    // ! 캐릭터별 대화 횟수 조회
+    public int GetCharacterConversationCount(string characterId)
+    {
+        if (nowPlayer.characterConversationCount.ContainsKey(characterId))
+        {
+            return nowPlayer.characterConversationCount[characterId];
+        }
+        return 0;
+    }
+    
+    // ===== 디버그 및 유틸리티 메소드들 =====
+    
+    [ContextMenu("저장 경로 열기")]
+    public void OpenSaveDirectory()
+    {
+        string savePath = Application.persistentDataPath;
+        Debug.Log($"저장 경로: {savePath}");
+        
+        // Windows에서 탐색기로 폴더 열기
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        System.Diagnostics.Process.Start("explorer.exe", savePath.Replace("/", "\\"));
+        #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+        System.Diagnostics.Process.Start("open", savePath);
+        #endif
+    }
+    
+    [ContextMenu("저장 파일 목록 출력")]
+    public void ListSaveFiles()
+    {
+        Debug.Log("=== 저장 파일 목록 ===");
+        Debug.Log($"저장 경로: {path}");
+        
+        // 모든 JSON 파일 찾기
+        if (System.IO.Directory.Exists(path))
+        {
+            string[] files = System.IO.Directory.GetFiles(path, "*.json");
+            foreach (string file in files)
+            {
+                var fileInfo = new System.IO.FileInfo(file);
+                Debug.Log($"📄 {System.IO.Path.GetFileName(file)} ({fileInfo.Length} bytes, {fileInfo.LastWriteTime:yyyy-MM-dd HH:mm:ss})");
+            }
+            
+            if (files.Length == 0)
+            {
+                Debug.Log("저장된 파일이 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.Log("저장 폴더가 존재하지 않습니다.");
+        }
+    }
+    
+    [ContextMenu("저장 데이터 백업")]
+    public void BackupSaveData()
+    {
+        string backupPath = path + "backup_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + "/";
+        
+        if (!System.IO.Directory.Exists(backupPath))
+        {
+            System.IO.Directory.CreateDirectory(backupPath);
+        }
+        
+        // 모든 JSON 파일 백업
+        string[] files = System.IO.Directory.GetFiles(path, "*.json");
+        foreach (string file in files)
+        {
+            string fileName = System.IO.Path.GetFileName(file);
+            System.IO.File.Copy(file, backupPath + fileName, true);
+        }
+        
+        Debug.Log($"백업 완료: {backupPath}");
     }
 }

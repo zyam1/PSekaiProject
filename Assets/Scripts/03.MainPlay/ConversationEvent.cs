@@ -9,6 +9,8 @@ public class ConversationEvent : MonoBehaviour
     public DialogueRunner dialogueRunner;
     public GameObject RightUnderUI;
     public GameObject LeftUI;
+    
+    private string selectedDialog; // 현재 선택된 대화 ID
     // Start is called before the first frame update
     void Start()
     {
@@ -35,7 +37,7 @@ public class ConversationEvent : MonoBehaviour
         YarnUI.SetActive(true);
 
         // 랜덤 대사 선택
-        string selectedDialog = randomDialogNodes[UnityEngine.Random.Range(0, randomDialogNodes.Count)];
+        selectedDialog = randomDialogNodes[UnityEngine.Random.Range(0, randomDialogNodes.Count)];
 
         // 실행 
         RightUnderUI.SetActive(false);
@@ -63,6 +65,11 @@ public class ConversationEvent : MonoBehaviour
         {
             dialogueRunner.Stop();
         }
+        
+        // 대화 완료 이벤트 발생 (이제 모든 대화 관련 로직은 GameEventManager가 처리)
+        GameEventManager.TriggerConversationCompleted("general", selectedDialog ?? "unknown");
+        
+        Debug.Log("대화 완료 이벤트 발생!");
     }
     // Update is called once per frame
     void Update()
