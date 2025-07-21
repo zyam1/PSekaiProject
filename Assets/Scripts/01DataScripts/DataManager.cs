@@ -411,4 +411,68 @@ public class DataManager : MonoBehaviour
         }
         return 0;
     }
+    
+    // ===== 디버그 및 유틸리티 메소드들 =====
+    
+    [ContextMenu("저장 경로 열기")]
+    public void OpenSaveDirectory()
+    {
+        string savePath = Application.persistentDataPath;
+        Debug.Log($"저장 경로: {savePath}");
+        
+        // Windows에서 탐색기로 폴더 열기
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        System.Diagnostics.Process.Start("explorer.exe", savePath.Replace("/", "\\"));
+        #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+        System.Diagnostics.Process.Start("open", savePath);
+        #endif
+    }
+    
+    [ContextMenu("저장 파일 목록 출력")]
+    public void ListSaveFiles()
+    {
+        Debug.Log("=== 저장 파일 목록 ===");
+        Debug.Log($"저장 경로: {path}");
+        
+        // 모든 JSON 파일 찾기
+        if (System.IO.Directory.Exists(path))
+        {
+            string[] files = System.IO.Directory.GetFiles(path, "*.json");
+            foreach (string file in files)
+            {
+                var fileInfo = new System.IO.FileInfo(file);
+                Debug.Log($"📄 {System.IO.Path.GetFileName(file)} ({fileInfo.Length} bytes, {fileInfo.LastWriteTime:yyyy-MM-dd HH:mm:ss})");
+            }
+            
+            if (files.Length == 0)
+            {
+                Debug.Log("저장된 파일이 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.Log("저장 폴더가 존재하지 않습니다.");
+        }
+    }
+    
+    [ContextMenu("저장 데이터 백업")]
+    public void BackupSaveData()
+    {
+        string backupPath = path + "backup_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + "/";
+        
+        if (!System.IO.Directory.Exists(backupPath))
+        {
+            System.IO.Directory.CreateDirectory(backupPath);
+        }
+        
+        // 모든 JSON 파일 백업
+        string[] files = System.IO.Directory.GetFiles(path, "*.json");
+        foreach (string file in files)
+        {
+            string fileName = System.IO.Path.GetFileName(file);
+            System.IO.File.Copy(file, backupPath + fileName, true);
+        }
+        
+        Debug.Log($"백업 완료: {backupPath}");
+    }
 }

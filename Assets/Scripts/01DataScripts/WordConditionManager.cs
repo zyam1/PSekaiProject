@@ -11,7 +11,7 @@ public class WordCondition
     public string type;          // "event", "stat", "item", "random", "multiple"
     public string eventName;     // 이벤트 이름
     public string statName;      // 스탯 이름
-    public string operator_op;   // 연산자 (">=", "<=", "==", ">", "<")
+    [SerializeField] public string operator_field;   // 연산자 (">=", "<=", "==", ">", "<") - 'operator'는 예약어이므로 operator_field 사용
     public int value;            // 비교값
     public string itemName;      // 아이템 이름
     public float probability;    // 확률 (0.0 ~ 1.0)
@@ -166,16 +166,18 @@ public class WordConditionManager : MonoBehaviour
         }
 
         // 연산자에 따른 비교
-        switch (condition.operator_op)
+        string operatorStr = condition.operator_field ?? ">="; // 기본값 설정
+        
+        switch (operatorStr)
         {
             case ">=": return currentValue >= condition.value;
             case "<=": return currentValue <= condition.value;
             case "==": return currentValue == condition.value;
-            case ">": return currentValue > condition.value;
-            case "<": return currentValue < condition.value;
+            case ">":	return currentValue > condition.value;
+            case "<":	return currentValue < condition.value;
             default:
-                Debug.LogWarning($"알 수 없는 연산자: {condition.operator_op}");
-                return false;
+                Debug.LogWarning($"알 수 없는 연산자: '{operatorStr}' (기본값 '>=' 사용)");
+                return currentValue >= condition.value; // 기본 비교로 폴백
         }
     }
 

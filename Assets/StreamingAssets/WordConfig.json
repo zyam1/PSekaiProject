@@ -26,7 +26,7 @@
         {
           "type": "stat",
           "statName": "intelligence",
-          "operator": ">=",
+          "operator_field": ">=",
           "value": 70,
           "eventName": "study_high_intelligence",
           "description": "높은 지능 달성"
@@ -52,13 +52,13 @@
             {
               "type": "stat",
               "statName": "intelligence",
-              "operator": ">=",
+              "operator_field": ">=",
               "value": 80
             },
             {
               "type": "stat",
               "statName": "charisma",
-              "operator": ">=",
+              "operator_field": ">=",
               "value": 75
             },
             {
