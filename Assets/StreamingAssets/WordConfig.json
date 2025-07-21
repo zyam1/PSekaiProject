@@ -1,0 +1,207 @@
+{
+  "wordUnlockConditions": [
+    {
+      "wordId": "word_happy",
+      "conditions": [
+        {
+          "type": "event",
+          "eventName": "first_meeting",
+          "description": "첫 만남"
+        }
+      ]
+    },
+    {
+      "wordId": "word_cook",
+      "conditions": [
+        {
+          "type": "event",
+          "eventName": "cooking_event",
+          "description": "요리 이벤트"
+        }
+      ]
+    },
+    {
+      "wordId": "word_book",
+      "conditions": [
+        {
+          "type": "stat",
+          "statName": "intelligence",
+          "operator": ">=",
+          "value": 70,
+          "eventName": "study_high_intelligence",
+          "description": "높은 지능 달성"
+        }
+      ]
+    },
+    {
+      "wordId": "word_love",
+      "conditions": [
+        {
+          "type": "event",
+          "eventName": "romantic_scene",
+          "description": "로맨틱 장면"
+        }
+      ]
+    },
+    {
+      "wordId": "word_star",
+      "conditions": [
+        {
+          "type": "multiple",
+          "requirements": [
+            {
+              "type": "stat",
+              "statName": "intelligence",
+              "operator": ">=",
+              "value": 80
+            },
+            {
+              "type": "stat",
+              "statName": "charisma",
+              "operator": ">=",
+              "value": 75
+            },
+            {
+              "type": "event",
+              "eventName": "night_sky_event"
+            }
+          ],
+          "description": "밤하늘 이벤트 + 높은 지능/매력"
+        }
+      ]
+    },
+    {
+      "wordId": "word_sea",
+      "conditions": [
+        {
+          "type": "item",
+          "itemName": "바다표",
+          "description": "바다표 소지"
+        }
+      ]
+    },
+    {
+      "wordId": "word_cold",
+      "conditions": [
+        {
+          "type": "random",
+          "probability": 0.3,
+          "eventName": "sick_event",
+          "description": "감기 걸렸을 때 (30% 확률)"
+        }
+      ]
+    },
+    {
+      "wordId": "word_greeting",
+      "conditions": [
+        {
+          "type": "event",
+          "eventName": "third_conversation",
+          "description": "3번째 대화 완료"
+        }
+      ]
+    },
+    {
+      "wordId": "word_friendship",
+      "conditions": [
+        {
+          "type": "event",
+          "eventName": "conversation_veteran",
+          "description": "10회 이상 대화"
+        }
+      ]
+    }
+  ],
+  "wordMasterData": [
+    {
+      "id": "word_love",
+      "text": "사랑",
+      "type": "Emotion",
+      "category": "Romantic",
+      "baseAffectionValue": 15,
+      "description": "따뜻한 감정을 표현하는 단어",
+      "rarity": 2
+    },
+    {
+      "id": "word_happy",
+      "text": "행복",
+      "type": "Emotion", 
+      "category": "Gentle",
+      "baseAffectionValue": 10,
+      "description": "기쁜 마음을 나타내는 단어",
+      "rarity": 1
+    },
+    {
+      "id": "word_vegetable",
+      "text": "야채",
+      "type": "Object",
+      "category": "Caring",
+      "baseAffectionValue": 8,
+      "description": "건강을 생각하는 마음",
+      "rarity": 1
+    },
+    {
+      "id": "word_cold",
+      "text": "감기",
+      "type": "State",
+      "category": "Caring", 
+      "baseAffectionValue": 6,
+      "description": "걱정과 돌봄을 표현",
+      "rarity": 1
+    },
+    {
+      "id": "word_cook",
+      "text": "요리",
+      "type": "Action",
+      "category": "Caring",
+      "baseAffectionValue": 11,
+      "description": "정성을 담은 행동",
+      "rarity": 1
+    },
+    {
+      "id": "word_book",
+      "text": "책",
+      "type": "Object",
+      "category": "Intellectual",
+      "baseAffectionValue": 12,
+      "description": "지식과 학습을 나타내는 단어",
+      "rarity": 1
+    },
+    {
+      "id": "word_star",
+      "text": "별",
+      "type": "Nature",
+      "category": "Romantic",
+      "baseAffectionValue": 14,
+      "description": "영원함과 소망을 나타냄",
+      "rarity": 2
+    },
+    {
+      "id": "word_sea",
+      "text": "바다",
+      "type": "Nature",
+      "category": "Mysterious",
+      "baseAffectionValue": 13,
+      "description": "광활함과 자유를 상징",
+      "rarity": 2
+    },
+    {
+      "id": "word_greeting",
+      "text": "인사",
+      "type": "Action",
+      "category": "Gentle",
+      "baseAffectionValue": 7,
+      "description": "캐릭터와의 첫 대화에서 얻는 기본 단어",
+      "rarity": 1
+    },
+    {
+      "id": "word_friendship",
+      "text": "우정",
+      "type": "Emotion",
+      "category": "Gentle",
+      "baseAffectionValue": 12,
+      "description": "많은 대화를 통해 쌓인 유대감",
+      "rarity": 1
+    }
+  ]
+}
